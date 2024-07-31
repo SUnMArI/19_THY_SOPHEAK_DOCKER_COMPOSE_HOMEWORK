@@ -46,26 +46,6 @@ services:
     depends_on:
       - second-db
 
-  # keycloak:
-  #   image:  quay.io/keycloak/keycloak:legacy
-  #   container_name: keycloak
-  #   ports:
-  #     - "8080:8080"
-  #     - "8443:8443"
-  #   environment:
-  #     DB_VENDOR: POSTGRES
-  #     DB_ADDR: second-db
-  #     DB_DATABASE: sopheak
-  #     DB_USER: sopheak
-  #     DB_SCHEMA: public
-  #     DB_PASSWORD: 1234
-  #     KEYCLOAK_USER: admin
-  #     KEYCLOAK_PASSWORD: admin
-  #   depends_on:
-  #     - second-db
-  #   command: start-dev
-
-
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak-container
