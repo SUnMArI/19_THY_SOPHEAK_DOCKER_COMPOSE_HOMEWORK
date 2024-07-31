@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+  first-db:
+    image: postgres
+    container_name: sopheak-postgres
+    environment:
+      - POSTGRES_USER=sopheak
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=sopheak
+    ports:
+      - "5433:5432"
+    volumes:
+      - ~/apps/postgres-1:/var/lib/postgresql/data
+  app:
+    image: 'sopheak-spring'
+    build:
+      context: .
+    container_name: sopheak-run-spring
+    depends_on:
+      - first-db
+    environment:
+      - POSTGRES_USER=sopheak
+      - POSTGRES_PASSWORD=1234
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sopheak-postgres:5432/sopheak
+      - SPRING_DATASOURCE_USERNAME=sopheak
+      - SPRING_DATASOURCE_PASSWORD=1234
+    ports:
+      - "8081:8080"
+  second-db:
+    image: postgres
+    container_name: sopheak-postgresq2
+    environment:
+      - POSTGRES_USER=sopheak
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=sopheak
+    ports:
+      - "5434:5432"
+    volumes:
+      - ~/apps/postgres2:/var/lib/postgresql/data
+  
+  user-service:
+    build: .
+    ports:
+      - "3000:3000"
+    container_name: user-service
+    depends_on:
+      - second-db
+
+  # keycloak:
+  #   image:  quay.io/keycloak/keycloak:legacy
+  #   container_name: keycloak
+  #   ports:
+  #     - "8080:8080"
+  #     - "8443:8443"
+  #   environment:
+  #     DB_VENDOR: POSTGRES
+  #     DB_ADDR: second-db
+  #     DB_DATABASE: sopheak
+  #     DB_USER: sopheak
+  #     DB_SCHEMA: public
+  #     DB_PASSWORD: 1234
+  #     KEYCLOAK_USER: admin
+  #     KEYCLOAK_PASSWORD: admin
+  #   depends_on:
+  #     - second-db
+  #   command: start-dev
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak-container
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: second-db
+      DB_DATABASE: sopheak
+      DB_USER: sopheak
+      DB_PASSWORD: 1234
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    depends_on:
+      - second-db
+    command: start-dev
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: myuser
+      RABBITMQ_DEFAULT_PASS: mypassword
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
