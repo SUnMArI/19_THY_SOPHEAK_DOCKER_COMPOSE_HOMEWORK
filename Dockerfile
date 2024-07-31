@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy the JAR file into the container
 COPY mini-project-expense-tracking-0.0.1-SNAPSHOT.jar /app/my-spring-boot-app.jar
 
-COPY . .
+
 # Expose the port on which the application will run
 EXPOSE 8081
 
